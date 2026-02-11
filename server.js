@@ -43,7 +43,7 @@ app.post('/api/claim-reward', async (req, res) => {
         });
 
         res.status(200).json({ success: true, message: "Reward added successfully" });
-        console.log(Success: 10 Diamonds added to UID: ${uid});
+        console.log(`Success: 10 Diamonds added to UID: ${uid}`);
 
     } catch (error) {
         console.error("Firebase update error:", error);
@@ -54,5 +54,5 @@ app.post('/api/claim-reward', async (req, res) => {
 // সার্ভার পোর্ট সেটআপ
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(Server is running on port ${PORT});
+    console.log(`Server is running on port ${PORT}`);
 });
