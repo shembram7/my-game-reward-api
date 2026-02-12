@@ -49,7 +49,7 @@ app.post('/api/claim-reward', async (req, res) => {
         await newHistoryRef.set({
             amount: 10,
             id: newHistoryRef.key,       // অ্যাপের লজিক অনুযায়ী আইডি এখানেও থাকতে হবে
-            method: "Game Zone Win",     // এটি অ্যাপের সাবটাইটেলে দেখাবে (Spin Win এর জায়গায়)
+            method: "Telegram Game B2E Diamond Zone Win",     // এটি অ্যাপের সাবটাইটেলে দেখাবে (Spin Win এর জায়গায়)
             status: "approved",          // অ্যাপের স্ট্যাটাস গ্রিন করার জন্য
             timestamp: admin.database.ServerValue.TIMESTAMP,
             transactionId: "",           // অ্যাপের ফরম্যাট অনুযায়ী খালি স্ট্রিং
