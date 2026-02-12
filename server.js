@@ -24,7 +24,7 @@ if (!process.env.FIREBASE_CREDENTIALS) {
 const db = admin.database();
 
 // ==========================================
-// 🚀 API Endpoint: রিওয়ার্ড যোগ করার জন্য
+// 🚀 API Endpoint: রিওয়ার্ড + হিস্ট্রি সেভ করা
 // ==========================================
 app.post('/api/claim-reward', async (req, res) => {
     const { uid } = req.body;
@@ -34,20 +34,27 @@ app.post('/api/claim-reward', async (req, res) => {
     }
 
     try {
-        // ✅ ফায়ারবেস ডাটাবেসে ইউজার আইডি অনুযায়ী টার্গেট করা (ব্যাকটিক ব্যবহার করা হয়েছে)
+        // ১. ব্যালেন্স আপডেট করা
         const walletRef = db.ref(`users/${uid}/wallet/greenDiamondBalance`);
-        
-        // ট্রানজেকশনের মাধ্যমে ১০ ডায়মন্ড যোগ করা
         await walletRef.transaction((currentBalance) => {
             return (currentBalance || 0) + 10;
         });
 
+        // ২. হিস্ট্রি সেভ করা (নতুন অংশ) ✅
+        const historyRef = db.ref(`walletHistory/${uid}`);
+        await historyRef.push({
+            amount: 10,
+            type: "Credit",
+            reason: "Game Reward",
+            timestamp: admin.database.ServerValue.TIMESTAMP // সার্ভার টাইম
+        });
+
         res.status(200).json({ success: true, message: "Reward added successfully" });
-        console.log(`Success: 10 Diamonds added to UID: ${uid}`);
+        console.log(`Success: 10 Diamonds & History added to UID: ${uid}`);
 
     } catch (error) {
         console.error("Firebase update error:", error);
-        res.status(500).json({ success: false, message: "Server error, try again later." });
+        res.status(500).json({ success: false, message: "Server error" });
     }
 });
 
