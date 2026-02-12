@@ -24,7 +24,7 @@ if (!process.env.FIREBASE_CREDENTIALS) {
 const db = admin.database();
 
 // ==========================================
-// 🚀 API Endpoint: রিওয়ার্ড + হিস্ট্রি সেভ করা
+// 🚀 API Endpoint: রিওয়ার্ড + সঠিক ফরম্যাটে হিস্ট্রি সেভ করা
 // ==========================================
 app.post('/api/claim-reward', async (req, res) => {
     const { uid } = req.body;
@@ -40,17 +40,25 @@ app.post('/api/claim-reward', async (req, res) => {
             return (currentBalance || 0) + 10;
         });
 
-        // ২. হিস্ট্রি সেভ করা (নতুন অংশ) ✅
+        // ২. হিস্ট্রি সেভ করা (অ্যাপের Spin/Scratch Win এর ফরম্যাটে) ✅
         const historyRef = db.ref(`walletHistory/${uid}`);
-        await historyRef.push({
+        
+        // প্রথমে একটি নতুন key তৈরি করি (যাতে id ফিল্ডে বসাতে পারি)
+        const newHistoryRef = historyRef.push();
+        
+        await newHistoryRef.set({
             amount: 10,
-            type: "Credit",
-            reason: "Game Reward",
-            timestamp: admin.database.ServerValue.TIMESTAMP // সার্ভার টাইম
+            id: newHistoryRef.key,       // অ্যাপের লজিক অনুযায়ী আইডি এখানেও থাকতে হবে
+            method: "Game Zone Win",     // এটি অ্যাপের সাবটাইটেলে দেখাবে (Spin Win এর জায়গায়)
+            status: "approved",          // অ্যাপের স্ট্যাটাস গ্রিন করার জন্য
+            timestamp: admin.database.ServerValue.TIMESTAMP,
+            transactionId: "",           // অ্যাপের ফরম্যাট অনুযায়ী খালি স্ট্রিং
+            type: "Reward",              // ⚠️ এটি সবচেয়ে জরুরি! "Reward" দিলেই কেবল সবুজ দেখাবে
+            userId: uid
         });
 
         res.status(200).json({ success: true, message: "Reward added successfully" });
-        console.log(`Success: 10 Diamonds & History added to UID: ${uid}`);
+        console.log(`Success: 10 Diamonds added to UID: ${uid}`);
 
     } catch (error) {
         console.error("Firebase update error:", error);
